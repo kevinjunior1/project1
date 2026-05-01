@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="mucyo1.css">
+    <title>Unity Health - Offline Check-in</title>
+</head>
+<body>
+<img src="mucyo.png" width="110" height="80">
+<p>welcome to unityhealth-clinic</p>
+<header>
+<nav>
+  <button><a href="index.html">home</a></button> 
+  <button><a href="other s.html">others</a></button> 
+  <button><a href="log in.html">log in</a></button>
+<button><a href="index.html">sign up</a></button>
+    </nav>
+    </header>
+<p>confirm your details</p>
+            <form id="checkinForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="patientName" placeholder="Enter name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Reason for Visit</label>
+                    <select id="reason">
+                        <option>Medication Refill</option>
+                        <option>New Consultation</option>
+                        <option>Follow-up</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="consent">
+                    <label>I consent to treatment</label>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit & Complete</button>
+                </div>
+            </form>
+        </main>
+    </div>
+ <footer>
+    <p>email:unityhealthclinic@gmail.com</p>
+    <p>unityhealth-clinic</p>
+    <p>&copy;</p>
+</body>
+</html>

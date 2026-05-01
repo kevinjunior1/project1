@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Exchange Website - Home</title>
+    <link rel="stylesheet" href="mucyo1.css">
+    </head>
+    
+    <header>
+         <image src="logo.png" controls width="80" height="80"></image>
+            <h5><i>CURRENCY EXCHANGE WEBSITE</i></h5>
+        </header>
+
+        <script src="javascript.js"></script>
+      
+
+        <nav>
+          <button>  <a href="index.html">Home</a></button>
+          <button>  <a href="converter.html">Converter</a></button>
+           <button> <a href="details.html">Details</a></button>
+          <button>  <a href="history.html">History</a></button>
+            <button><a href="settings.html">Setting</a></button>
+            </nav>
+            <body>
+                <h4>CURRENCY CONVERTER</h4>
+                <form>
+                    <fieldset>
+                    <legend>USER INPUT</legend>
+                    ENTER MONEY:
+                    <input type="number" id="amount" placeholder="Enter Amount" required><br>
+
+                    <select id="fromcurrency">
+                        <option value="RDA">Rwandan francs</option>
+                        <option value="SHIR">SHILINGI</option>
+                        <option value="$$">Dollar</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+
+
+                        <select id="tocurrency">
+                            <option value="RDA">Rwandan francs</option>
+                        <option value="SHIR">SHILINGI</option>
+                        <option value="$$">Dollar</option>
+                        <option value="EUR">EUR</option>
+                        </select>
+                            <button type="button" onclick="swap()">SWAP</button>
+                            <button type="button" onclick="convert()">CONVERT</button>
+                            <p id="result">Result will appear here</p>
+                    </fieldset>
+                    </form>
+                   <image src="logo.png" controls width="80" height="80"></image>
+                    <footer>
+        <p>EMAIL:currencyconverter111@gmail.com</p>
+        <p>INSTAGRAM:currency_converter_111</p>
+        <p>FACEBOOK:currency converter</p>
+        <p>© 2026 Currency App</p>
+        </footer>  
+</body>
+</html>

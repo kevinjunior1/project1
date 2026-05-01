@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Unity Health Clinic | Staff Login</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0A2E4D 0%, #1B4F72 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    /* decorative medical pattern overlay */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"><path d="M12 8v8M8 12h8M3 12h18M12 3v18"/><circle cx="12" cy="12" r="9"/></svg>');
+      background-repeat: repeat;
+      background-size: 40px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    /* main login card */
+    .login-container {
+      width: 100%;
+      max-width: 460px;
+      background: #FFFFFF;
+      border-radius: 40px;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.25), 0 8px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.2s ease;
+    }
+
+    /* header with brand */
+    .login-header {
+      background: #0A2E4D;
+      padding: 1.8rem 2rem 1.5rem;
+      text-align: center;
+      color: white;
+    }
+    .clinic-icon {
+      background: rgba(255,255,255,0.15);
+      width: 70px;
+      height: 70px;
+      border-radius: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 2.2rem;
+    }
+    .login-header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .login-header p {
+      font-size: 0.8rem;
+      opacity: 0.85;
+      margin-top: 6px;
+    }
+    .badge-role {
+      background: #28A745;
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    /* Role selector tabs (Doctor / Nurse) */
+    .role-tabs {
+      display: flex;
+      background: #F8FAFE;
+      border-bottom: 1px solid #E9EDF2;
+    }
+    .role-tab {
+      flex: 1;
+      text-align: center;
+      padding: 1rem 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #6C86A3;
+      border-bottom: 3px solid transparent;
+      background: #F8FAFE;
+    }
+    .role-tab i {
+      margin-right: 8px;
+      font-size: 1rem;
+    }
+    .role-tab.active {
+      color: #0A2E4D;
+      border-bottom-color: #2C7DA0;
+      background: white;
+    }
+    .role-tab.doctor-tab.active {
+      border-bottom-color: #1E88E5;
+    }
+    .role-tab.nurse-tab.active {
+      border-bottom-color: #28A745;
+    }
+
+    /* form body */
+    .login-body {
+      padding: 2rem 2rem 2rem;
+    }
+
+    /* input groups */
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .input-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #3C5A7D;
+      margin-bottom: 8px;
+    }
+    .input-group .input-icon {
+      position: relative;
+    }
+    .input-group .input-icon i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8BA0B5;
+      font-size: 1rem;
+      pointer-events: none;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 14px 16px 14px 48px;
+      border-radius: 30px;
+      border: 1.5px solid #E2E9F2;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background: #FEFEFE;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #2C7DA0;
+      box-shadow: 0 0 0 3px rgba(44,125,160,0.1);
+    }
+    /* password show/hide button */
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #8BA0B5;
+      font-size: 1rem;
+      padding: 5px;
+    }
+    .password-toggle:hover {
+      color: #2C7DA0;
+    }
+
+    /* extra options (remember & forgot) */
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.5rem 0 1.5rem;
+      font-size: 0.8rem;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: #4a627a;
+    }
+    .checkbox-label input {
+      width: 18px;
+      height: 18px;
+      accent-color: #2C7DA0;
+      cursor: pointer;
+    }
+    .forgot-link {
+      color: #2C7DA0;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    /* login button */
+    .login-btn {
+      width: 100%;
+      background: #0A2E4D;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(10,46,77,0.2);
+    }
+    .login-btn:hover {
+      background: #1B4F72;
+      transform: translateY(-1px);
+    }
+    .login-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* demo credentials hint */
+    .demo-hint {
+      background: #F0F7FE;
+      border-radius: 20px;
+      padding: 0.9rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #2C5A7A;
+      border: 1px solid #D9E6F5;
+      margin-top: 1rem;
+    }
+    .demo-hint strong {
+      color: #0A2E4D;
+    }
+    .demo-hint i {
+      margin-right: 5px;
+    }
+
+    /* error message */
+    .error-message {
+      background: #FEF3F2;
+      border-left: 4px solid #DC3545;
+      padding: 12px 16px;
+      border-radius: 20px;
+      margin-bottom: 1.2rem;
+      font-size: 0.8rem;
+      color: #B91C2C;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+
+    /* success / redirect simulation toast */
+    .toast-message {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1F7B4D;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      z-index: 1000;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      animation: fadeUp 0.3s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px);}
+      to { opacity: 1; transform: translateX(-50%) translateY(0);}
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.7rem;
+      color: #8BA0B5;
+      border-top: 1px solid #EEF2F8;
+    }
+
+    @media (max-width: 480px) {
+      .login-body {
+        padding: 1.5rem;
+      }
+      .login-header {
+        padding: 1.2rem;
+      }
+      .role-tab {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="login-container">
+  <div class="login-header">
+    <div class="clinic-icon">
+      <i class="fas fa-user-md"></i>
+    </div>
+    <h1>UNITY HEALTH CLINIC</h1>
+    <p>Staff Portal · Secure Access</p>
+    <div class="badge-role"><i class="fas fa-shield-alt"></i> HIPAA Compliant</div>
+  </div>
+
+  <!-- Role Tabs: Doctor / Nurse -->
+  <div class="role-tabs">
+    <div class="role-tab doctor-tab active" data-role="doctor">
+      <i class="fas fa-stethoscope"></i> Doctor
+    </div>
+    <div class="role-tab nurse-tab" data-role="nurse">
+      <i class="fas fa-hand-holding-heart"></i> Nurse
+    </div>
+  </div>
+
+  <div class="login-body">
+    <!-- Error container -->
+    <div id="errorContainer" class="error-message hidden">
+      <i class="fas fa-exclamation-circle"></i> <span id="errorText">Invalid credentials</span>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm">
+      <div class="input-group">
+        <label><i class="far fa-envelope"></i> Email / Username</label>
+        <div class="input-icon">
+          <i class="fas fa-user"></i>
+          <input type="text" id="username" placeholder="doctor@unityclinic.com / nurse@unityclinic.com" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <div class="input-icon">
+          <i class="fas fa-key"></i>
+          <input type="password" id="password" placeholder="Enter your password">
+          <button type="button" id="togglePassword" class="password-toggle">
+            <i class="far fa-eye-slash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-options">
+        <label class="checkbox-label">
+          <input type="checkbox" id="rememberCheckbox"> Remember me
+        </label>
+        <a href="#" id="forgotPasswordLink" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="login-btn">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+    </form>
+
+    <!-- Demo credentials hint (offline demo) -->
+    <div class="demo-hint">
+      <i class="fas fa-info-circle"></i> <strong>Demo Credentials</strong><br>
+      👩‍⚕️ <strong>Doctor:</strong> doctor@unityclinic.com / pass123<br>
+      👩‍⚕️ <strong>Nurse:</strong> nurse@unityclinic.com / pass123
+    </div>
+  </div>
+  <footer>
+    <i class="fas fa-laptop-medical"></i> Secure offline login · role-based access
+  </footer>
+</div>
+
+<script>
+  // DOM elements
+  const doctorTab = document.querySelector('.doctor-tab');
+  const nurseTab = document.querySelector('.nurse-tab');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const loginForm = document.getElementById('loginForm');
+  const errorContainer = document.getElementById('errorContainer');
+  const errorTextSpan = document.getElementById('errorText');
+  const togglePasswordBtn = document.getElementById('togglePassword');
+  const rememberCheckbox = document.getElementById('rememberCheckbox');
+  const forgotLink = document.getElementById('forgotPasswordLink');
+  
+  // Role state
+  let currentRole = 'doctor';   // 'doctor' or 'nurse'
+
+  // ---------- Role Switching UI ----------
+  function setActiveRole(role) {
+    currentRole = role;
+    if (role === 'doctor') {
+      doctorTab.classList.add('active');
+      nurseTab.classList.remove('active');
+      // optional: change placeholder hints for doctor
+      usernameInput.placeholder = "doctor@unityclinic.com";
+    } else {
+      nurseTab.classList.add('active');
+      doctorTab.classList.remove('active');
+      usernameInput.placeholder = "nurse@unityclinic.com";
+    }
+    // Clear any previous error when switching roles
+    hideError();
+    // Not clearing input values automatically (user might switch roles)
+  }
+
+  doctorTab.addEventListener('click', () => setActiveRole('doctor'));
+  nurseTab.addEventListener('click', () => setActiveRole('nurse'));
+
+  // ---------- Helper: Show error message ----------
+  function showError(message) {
+    errorTextSpan.innerText = message;
+    errorContainer.classList.remove('hidden');
+    // auto hide after 4 seconds
+    setTimeout(() => {
+      if (errorContainer && !errorContainer.classList.contains('hidden')) {
+        errorContainer.classList.add('hidden');
+      }
+    }, 4000);
+  }
+
+  function hideError() {
+    errorContainer.classList.add('hidden');
+    errorTextSpan.innerText = '';
+  }
+
+  // ---------- Password Toggle (show/hide) ----------
+  togglePasswordBtn.addEventListener('click', function() {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    this.innerHTML = type === 'password' ? '<i class="far fa-eye-slash"></i>' : '<i class="far fa-eye"></i>';
+  });
+
+  // ---------- Forgot password (demo simulation) ----------
+  forgotLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showToastMessage('📧 Reset link sent to your clinic email address (demo mode).');
+  });
+
+  // Helper toast message (temporary notification)
+  function showToastMessage(message, isSuccess = true) {
+    let existingToast = document.querySelector('.toast-message');
+    if (existingToast) existingToast.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-info-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+  // ---------- Save to localStorage "remember me" (demo) ----------
+  function saveRememberedCredentials(username, role) {
+    if (rememberCheckbox.checked) {
+      localStorage.setItem('clinic_remembered_user', username);
+      localStorage.setItem('clinic_remembered_role', role);
+      localStorage.setItem('clinic_remember_flag', 'true');
+    } else {
+      localStorage.removeItem('clinic_remembered_user');
+      localStorage.removeItem('clinic_remembered_role');
+      localStorage.setItem('clinic_remember_flag', 'false');
+    }
+  }
+
+  function loadRememberedCredentials() {
+    const flag = localStorage.getItem('clinic_remember_flag');
+    if (flag === 'true') {
+      const savedUser = localStorage.getItem('clinic_remembered_user');
+      const savedRole = localStorage.getItem('clinic_remembered_role');
+      if (savedUser) {
+        usernameInput.value = savedUser;
+        rememberCheckbox.checked = true;
+        if (savedRole === 'doctor') setActiveRole('doctor');
+        else if (savedRole === 'nurse') setActiveRole('nurse');
+      }
+    }
+  }
+
+  // ---------- VALIDATION & AUTHENTICATION (mock role-based) ----------
+  // For demo purposes, clinic staff validation: doctor & nurse credentials
+  function authenticate(role, username, password) {
+    // Normalize inputs
+    const user = username.trim().toLowerCase();
+    const pwd = password.trim();
+    
+    if (role === 'doctor') {
+      // doctor credentials: doctor@unityclinic.com / pass123  or any demo
+      if ((user === 'doctor@unityclinic.com' || user === 'doctor') && pwd === 'pass123') {
+        return { success: true, fullName: 'Dr. Sarah Mitchell', role: 'Doctor', redirect: '/doctor-dashboard' };
+      }
+    } 
+    else if (role === 'nurse') {
+      // nurse credentials: nurse@unityclinic.com / pass123
+      if ((user === 'nurse@unityclinic.com' || user === 'nurse') && pwd === 'pass123') {
+        return { success: true, fullName: 'Nurse Anna K.', role: 'Nurse', redirect: '/nurse-dashboard' };
+      }
+    }
+    return { success: false, message: 'Invalid email or password. Please check your credentials.' };
+  }
+
+  // ---------- After successful login: display redirect simulation + role info ----------
+  function handleLoginSuccess(userData, roleType) {
+    // Display a nice success toast with role-based welcome
+    const welcomeMsg = `Welcome back, ${userData.fullName} (${userData.role}). Redirecting to dashboard...`;
+    showToastMessage(welcomeMsg, true);
+    
+    // In a real app, redirect to dashboard page; here we simulate navigation
+    setTimeout(() => {
+      // For demonstration: show an alert with success and reload simulation? 
+      // We can also replace body content slightly, but just illustrate successful login:
+      alert(`✅ LOGIN SUCCESSFUL!\n\nRole: ${userData.role}\nName: ${userData.fullName}\n\nThe clinic dashboard would open here.\n(Offline demo simulation)`);
+      // Optional: reset form or keep logged in state? We'll clear password field to reset.
+      passwordInput.value = '';
+      // On success, you could also redirect to a new page (but this is just code snippet)
+      // For demonstration we just show a success message.
+    }, 500);
+  }
+
+  // ---------- Form submit handler ----------
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    hideError();
+    
+    const username = usernameInput.value;
+    const password = passwordInput.value;
+    
+    // basic empty check
+    if (!username || username.trim() === '') {
+      showError('Please enter your email/username.');
+      return;
+    }
+    if (!password) {
+      showError('Password is required.');
+      return;
+    }
+    
+    // Perform authentication based on currentRole
+    const authResult = authenticate(currentRole, username, password);
+    
+    if (authResult.success) {
+      // Save remember-me if checked
+      saveRememberedCredentials(username, currentRole);
+      // Successful login
+      handleLoginSuccess(authResult, currentRole);
+      // optional clear error & further actions
+    } else {
+      showError(authResult.message || 'Authentication failed. Please try again.');
+      // on failure, clear password only for security
+      passwordInput.value = '';
+    }
+  });
+  
+  // Additional: reset demo fields with one-click? not necessary but add small handler for usability
+  // Also if user press Enter, works as submit.
+  
+  // Load any saved "remember me" data on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRememberedCredentials();
+    // Also set initial placeholder based on active role
+    if (currentRole === 'doctor') {
+      usernameInput.placeholder = "doctor@unityclinic.com";
+    } else {
+      usernameInput.placeholder = "nurse@unityclinic.com";
+    }
+    // Add small demo helper tooltip: if using quick demo.
+  });
+  
+  // Convenience: if user clicks on any demo hint fill? Not needed but prevent confusion, but we also provide helper:
+  // double-click on demo hint to autofill demo credentials?
+  const demoHintDiv = document.querySelector('.demo-hint');
+  if (demoHintDiv) {
+    demoHintDiv.addEventListener('dblclick', () => {
+      if (currentRole === 'doctor') {
+        usernameInput.value = 'doctor@unityclinic.com';
+        passwordInput.value = 'pass123';
+      } else {
+        usernameInput.value = 'nurse@unityclinic.com';
+        passwordInput.value = 'pass123';
+      }
+      showToastMessage('Demo credentials filled! Click Sign In.', true);
+    });
+  }
+  
+  // Also clicking on role tabs should not clear whole form but remove error
+  const roleTabs = [doctorTab, nurseTab];
+  roleTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      hideError();
+      // optional: if we want to preserve username but show role placeholder, fine
+    });
+  });
+</script>
+</body>
+</html>

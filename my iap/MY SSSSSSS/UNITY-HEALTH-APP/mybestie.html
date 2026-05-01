@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>RuralCare Clinic | Digital Patient Check-in System</title>
+  <!-- Offline-capable, no external fonts or CDNs required for core functionality -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ========== BRAND IDENTITY & DESIGN PRINCIPLES ==========
+       1. Accessibility: high contrast, clear focus states, scalable text
+       2. Calm & Trustworthy: soothing blue-green palette, soft shadows, rounded corners
+       3. Efficiency: 3-clicks rule, large tap targets, minimal cognitive load
+    ========== */
+    :root {
+      --primary: #1e6f5c;      /* calm teal: trust, health */
+      --primary-dark: #0e4f41;
+      --primary-light: #d1f0ea;
+      --secondary: #ffc107;    /* warm amber for highlights/alerts */
+      --neutral-light: #f9fafb;
+      --neutral-mid: #e5e7eb;
+      --neutral-dark: #4b5563;
+      --text-dark: #1f2937;
+      --text-muted: #6c757d;
+      --success: #28a745;
+      --white: #ffffff;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.08);
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--neutral-light);
+      color: var(--text-dark);
+      line-height: 1.4;
+    }
+
+    /* MAIN APP LAYOUT */
+    .app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      background: var(--white);
+      padding: 0.9rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+      border-bottom: 2px solid var(--primary-light);
+    }
+
+    .logo-area h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: -0.2px;
+    }
+
+    .logo-area p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .offline-badge {
+      background: var(--primary-light);
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--primary-dark);
+    }
+
+    .offline-badge::before {
+      content: "📡";
+      font-size: 0.9rem;
+    }
+
+    /* Sidebar + Main layout (2 columns - desktop, responsive) */
+    .dashboard-container {
+      display: flex;
+      flex: 1;
+    }
+
+    /* Sidebar Menu */
+    .sidebar {
+      width: 260px;
+      background: var(--white);
+      border-right: 1px solid var(--neutral-mid);
+      padding: 2rem 1rem;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .sidebar-menu li {
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      font-weight: 500;
+      color: var(--text-dark);
+      border-radius: var(--radius-sm);
+      transition: 0.1s ease;
+    }
+
+    .sidebar-menu a:hover,
+    .sidebar-menu li.active a {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .sidebar-menu .icon {
+      font-size: 1.3rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    /* Main content area */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-x: auto;
+    }
+
+    /* Card & UI Components = reusable buttons, inputs */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      color: var(--primary-dark);
+      border-left: 5px solid var(--secondary);
+      padding-left: 0.8rem;
+    }
+
+    /* Reusable button styles */
+    .btn {
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--neutral-mid);
+      color: var(--text-dark);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    /* Input fields */
+    .input-group {
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    label {
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: var(--neutral-dark);
+    }
+
+    input, select {
+      padding: 0.8rem 1rem;
+      border: 1.5px solid var(--neutral-mid);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      transition: 0.2s;
+      background: var(--white);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30,111,92,0.2);
+    }
+
+    /* Checkbox status specific */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0.8rem 0;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      width: 1.2rem;
+      height: 1.2rem;
+      accent-color: var(--primary);
+    }
+
+    /* Patient queue / appointment list */
+    .patient-list {
+      margin-top: 1rem;
+    }
+
+    .patient-item {
+      background: var(--neutral-light);
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      border: 1px solid var(--neutral-mid);
+    }
+
+    .patient-info h4 {
+      font-size: 1rem;
+    }
+
+    .status-badge {
+      background: #ffedd5;
+      color: #b45309;
+      padding: 0.3rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .status-badge.checked {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    hr {
+      margin: 1rem 0;
+      border-color: var(--neutral-mid);
+    }
+
+    /* Responsive - sidebar collapses on small screen */
+    @media (max-width: 700px) {
+      .dashboard-container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        padding: 1rem;
+        border-right: none;
+        border-bottom: 1px solid var(--neutral-mid);
+      }
+      .sidebar-menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .main-content {
+        padding: 1rem;
+      }
+    }
+
+    /* journey map custom styling */
+    .journey-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    .step {
+      flex: 1;
+      background: var(--primary-light);
+      padding: 0.8rem;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .highlight {
+      background: var(--secondary);
+      color: #1e3a2f;
+    }
+    footer {
+      background: white;
+      padding: 1rem;
+      text-align: center;
+      border-top: 1px solid var(--neutral-mid);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- Top Navigation Bar with logo and offline indicator -->
+  <div class="top-nav">
+    <div class="logo-area">
+      <h1>🌿 RuralCare Clinic</h1>
+      <p>Digital Check-in · Offline-first</p>
+    </div>
+    <div class="offline-badge">
+      <span>Working Offline | Local Data</span>
+    </div>
+  </div>
+
+  <div class="dashboard-container">
+    <!-- Sidebar Menu - navigation within dashboard -->
+    <aside class="sidebar">
+      <ul class="sidebar-menu">
+        <li class="active" id="nav-dashboard-link"><a href="#" data-view="dashboard"><span class="icon">📋</span> Check-in Dashboard</a></li>
+        <li id="nav-appointments-link"><a href="#" data-view="appointments"><span class="icon">📅</span> Appointments</a></li>
+        <li id="nav-patients-link"><a href="#" data-view="patients"><span class="icon">👥</span> Patient Registry</a></li>
+        <li id="nav-journey-link"><a href="#" data-view="journey"><span class="icon">🗺️</span> User Journey Map</a></li>
+      </ul>
+    </aside>
+
+    <!-- MAIN CONTENT: dynamic view container (3-clicks rule: anywhere you need is max 2 clicks from main) -->
+    <main class="main-content" id="main-view-container">
+      <!-- CHECK-IN DASHBOARD (DEFAULT) also low-fidelity wireframe style + high-fidelity UI -->
+      <div id="dashboard-view">
+        <div class="card">
+          <h2 class="section-title">📋 Patient Check-in</h2>
+          <p style="margin-bottom: 1rem; color: var(--neutral-dark);">Fast offline registration — complete check-in in under 3 clicks.</p>
+          <!-- Input fields for patient names + reusable buttons -->
+          <div class="input-group">
+            <label>Full name *</label>
+            <input type="text" id="patientNameInput" placeholder="e.g., Maria Gonzalez" autocomplete="off">
+          </div>
+          <div class="input-group">
+            <label>Appointment reason</label>
+            <select id="reasonSelect">
+              <option>General Check-up</option>
+              <option>Vaccination</option>
+              <option>Chronic follow-up</option>
+              <option>Lab results</option>
+            </select>
+          </div>
+          <!-- Status checkboxes (UI components) -->
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" id="consentCheckbox"> ✅ Consent to treatment & privacy
+            </label>
+            <label>
+              <input type="checkbox" id="insuranceCheckbox"> 🏥 Insurance verified (if applicable)
+            </label>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+            <button class="btn btn-primary" id="checkinBtn">➕ Check-in Patient</button>
+            <button class="btn btn-outline" id="resetFormBtn">⟳ Clear Form</button>
+          </div>
+        </div>
+
+        <!-- Today's queue: showing checked-in patients + status checkboxes -->
+        <div class="card">
+          <h2 class="section-title">📌 Today's Check-ins (Queue)</h2>
+          <div id="queueListContainer">
+            <!-- dynamic list -->
+            <div class="patient-list" id="patientQueueList">
+              <div class="patient-item" style="color: var(--text-muted);">No patients checked in yet. Use form above ⬆️</div>
+            </div>
+          </div>
+          <div style="margin-top: 1rem;">
+            <button class="btn" id="markFirstSeenBtn" style="background: var(--secondary); color:#2d3e2b;">🩺 Mark first patient as 'Seen' → update status</button>
+          </div>
+        </div>
+
+        <!-- information architecture note (3-clicks rule) -->
+        <div class="card" style="background: var(--primary-light); border-left: 6px solid var(--primary);">
+          <p style="font-weight: 500;">⚡ 3‑Clicks Rule Applied: From Dashboard, check-in patient (1 click form fill? no click count: fill name → click check-in = 2 clicks to add to queue, then click 'Mark Seen' = additional 1 action, but main navigation to any feature < 3 taps. Sidebar gives instant access.</p>
+        </div>
+      </div>
+
+      <!-- Appointments view (hidden initially) -->
+      <div id="appointments-view" style="display: none;">
+        <div class="card">
+          <h2 class="section-title">📅 Upcoming Appointments (Offline)</h2>
+          <div id="appointmentList">
+            <div class="patient-item">📌 10:00 AM - Elena Ramirez (General check-up)</div>
+            <div class="patient-item">📌 11:30 AM - James Omondi (Vaccination)</div>
+            <div class="patient-item">📌 01:15 PM - Fatima Hassan (Chronic follow-up)</div>
+            <div class="patient-item">📌 03:00 PM - Liam Chen (Lab results)</div>
+          </div>
+          <hr>
+          <div class="input-group">
+            <label>Add new appointment (offline demo)</label>
+            <input type="text" id="newApptName" placeholder="Patient name">
+            <select id="newApptTime">
+              <option>09:00 AM</option>
+              <option>10:30 AM</option>
+              <option>02:00 PM</option>
+            </select>
+            <button class="btn btn-primary" id="addApptBtn" style="margin-top: 0.6rem;">+ Schedule</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient Registry View  -->
+      <div id="patients-view" style="display: none;">
+        <div class="card">
+          <h2 class="section-title">👥 Registered Patients (Demo Registry)</h2>
+          <div id="registryList">
+            <div class="patient-item">Maria Santos | Last visit: Jan 12, 2025</div>
+            <div class="patient-item">John Mwangi | Last visit: Feb 3, 2025</div>
+            <div class="patient-item">Clara Wu | Last visit: Mar 1, 2025</div>
+          </div>
+          <p style="margin-top: 1rem; font-size: 0.8rem;">All data stored locally in memory (offline)</p>
+        </div>
+      </div>
+
+      <!-- User Journey Map View (visual mapping) -->
+      <div id="journey-view" style="display: none;">
+        <div class="card">
+          <h2 class="section-title">🚶‍♀️ User Journey: Patient Check-in Experience</h2>
+          <div class="journey-steps">
+            <div class="step">1️⃣ Enter Clinic → Reception kiosk</div>
+            <div class="step">2️⃣ Open Digital Check-in (dashboard)</div>
+            <div class="step">3️⃣ Fill name & reason (1 min)</div>
+            <div class="step">4️⃣ Confirm consent ✅</div>
+            <div class="step highlight">5️⃣ Check-in complete → Added to queue</div>
+            <div class="step">6️⃣ Staff notifies → Appointment seen</div>
+          </div>
+          <p style="margin-top: 1rem;"><strong>💡 Pain points addressed:</strong> Long paper forms, confusing queues, no status visibility → now digital offline, realtime queue status, and clear steps.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer>
+    <span>🔒 Offline Mode | RuralCare Clinic — Accessible, Efficient, Trustworthy Design. Follows 3-Clicks Rule & WCAG contrast guidelines.</span>
+  </footer>
+</div>
+
+<script>
+  // ------------------ STATE MANAGEMENT (offline-simulated) ------------------
+  let checkedInPatients = [];  // each: { id, name, reason, checkedInTime, status: "waiting"|"seen" }
+
+  // helper to update UI for queue
+  function renderQueue() {
+    const queueContainer = document.getElementById("patientQueueList");
+    if (!queueContainer) return;
+
+    if (checkedInPatients.length === 0) {
+      queueContainer.innerHTML = `<div class="patient-item" style="color: var(--text-muted);">✨ No patients checked in yet. Use form above ⬆️</div>`;
+      return;
+    }
+
+    queueContainer.innerHTML = "";
+    checkedInPatients.forEach((patient, idx) => {
+      const patientDiv = document.createElement("div");
+      patientDiv.className = "patient-item";
+      const isSeen = patient.status === "seen";
+      patientDiv.innerHTML = `
+        <div class="patient-info">
+          <h4>${escapeHtml(patient.name)}</h4>
+          <small>${patient.reason} • ${patient.checkedInTime}</small>
+          <div class="checkbox-group" style="margin-top: 6px;">
+            <label style="font-size:0.8rem;">
+              <input type="checkbox" class="status-checkbox" data-id="${patient.id}" ${isSeen ? "checked" : ""}> 
+              Appointment Completed / Seen
+            </label>
+          </div>
+        </div>
+        <div class="status-badge ${isSeen ? 'checked' : ''}">${isSeen ? "✓ Seen" : "⏳ Waiting"}</div>
+      `;
+      queueContainer.appendChild(patientDiv);
+    });
+
+    // attach event listeners to checkboxes (update status)
+    document.querySelectorAll('.status-checkbox').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const patientId = parseInt(cb.getAttribute('data-id'));
+        const patient = checkedInPatients.find(p => p.id === patientId);
+        if (patient) {
+          patient.status = cb.checked ? "seen" : "waiting";
+          renderQueue();   // re-render to reflect badge
+          // also save to localStorage if needed (offline persistence optional)
+          saveToLocalStorage();
+        }
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  function addCheckIn(name, reason) {
+    if (!name.trim()) {
+      alert("❌ Please enter patient name.");
+      return false;
+    }
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+    const newPatient = {
+      id: Date.now(),
+      name: name.trim(),
+      reason: reason,
+      checkedInTime: timeStr,
+      status: "waiting"
+    };
+    checkedInPatients.unshift(newPatient); // newest on top
+    renderQueue();
+    saveToLocalStorage();
+    return true;
+  }
+
+  function markFirstWaitingAsSeen() {
+    const waitingPatient = checkedInPatients.find(p => p.status === "waiting");
+    if (waitingPatient) {
+      waitingPatient.status = "seen";
+      renderQueue();
+      saveToLocalStorage();
+      alert(`✅ ${waitingPatient.name} marked as SEEN.`);
+    } else {
+      alert("No waiting patients in queue, or all already seen.");
+    }
+  }
+
+  // simple localStorage for persistence (offline)
+  function saveToLocalStorage() {
+    localStorage.setItem('ruralcare_patients', JSON.stringify(checkedInPatients));
+  }
+
+  function loadFromLocalStorage() {
+    const stored = localStorage.getItem('ruralcare_patients');
+    if (stored) {
+      try {
+        checkedInPatients = JSON.parse(stored);
+        // ensure each has status field for older data
+        checkedInPatients = checkedInPatients.map(p => ({ ...p, status: p.status || "waiting" }));
+        renderQueue();
+      } catch(e) { console.warn(e); }
+    }
+  }
+
+  // UI view routing (fulfills sidebar interactive)
+  function showView(viewName) {
+    const dashboardDiv = document.getElementById('dashboard-view');
+    const appointmentsDiv = document.getElementById('appointments-view');
+    const patientsDiv = document.getElementById('patients-view');
+    const journeyDiv = document.getElementById('journey-view');
+    // hide all
+    if(dashboardDiv) dashboardDiv.style.display = 'none';
+    if(appointmentsDiv) appointmentsDiv.style.display = 'none';
+    if(patientsDiv) patientsDiv.style.display = 'none';
+    if(journeyDiv) journeyDiv.style.display = 'none';
+    // show active
+    if(viewName === 'dashboard') dashboardDiv.style.display = 'block';
+    if(viewName === 'appointments') appointmentsDiv.style.display = 'block';
+    if(viewName === 'patients') patientsDiv.style.display = 'block';
+    if(viewName === 'journey') journeyDiv.style.display = 'block';
+
+    // update active nav style
+    const links = document.querySelectorAll('.sidebar-menu li');
+    links.forEach(li => li.classList.remove('active'));
+    if(viewName === 'dashboard') document.getElementById('nav-dashboard-link')?.classList.add('active');
+    if(viewName === 'appointments') document.getElementById('nav-appointments-link')?.classList.add('active');
+    if(viewName === 'patients') document.getElementById('nav-patients-link')?.classList.add('active');
+    if(viewName === 'journey') document.getElementById('nav-journey-link')?.classList.add('active');
+  }
+
+  // Additional feature: add appointment (simple demo)
+  function addAppointmentOffline() {
+    const nameInput = document.getElementById('newApptName');
+    const timeSelect = document.getElementById('newApptTime');
+    const name = nameInput.value.trim();
+    if(!name) { alert("Enter patient name"); return; }
+    const time = timeSelect.value;
+    const appointmentListDiv = document.getElementById('appointmentList');
+    const newApptDiv = document.createElement('div');
+    newApptDiv.className = "patient-item";
+    newApptDiv.innerHTML = `📌 ${time} - ${escapeHtml(name)} (Offline booking)`;
+    appointmentListDiv.appendChild(newApptDiv);
+    nameInput.value = '';
+    // No sync but stored in DOM (offline ok)
+  }
+
+  // event binding
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFromLocalStorage();
+
+    // check-in button
+    const checkinBtn = document.getElementById('checkinBtn');
+    const resetBtn = document.getElementById('resetFormBtn');
+    const patName = document.getElementById('patientNameInput');
+    const reasonSelect = document.getElementById('reasonSelect');
+    const consentChk = document.getElementById('consentCheckbox');
+    const insuranceChk = document.getElementById('insuranceCheckbox');
+
+    if(checkinBtn) {
+      checkinBtn.addEventListener('click', () => {
+        if(!consentChk.checked) {
+          alert("Please confirm consent to treatment (privacy & check-in).");
+          return;
+        }
+        const name = patName.value;
+        const reason = reasonSelect.value;
+        const added = addCheckIn(name, reason);
+        if(added) {
+          patName.value = '';
+          reasonSelect.selectedIndex = 0;
+          consentChk.checked = false;
+          insuranceChk.checked = false;
+          // optional success flash
+        }
+      });
+    }
+
+    if(resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        patName.value = '';
+        reasonSelect.selectedIndex = 0;
+        consentChk.checked = false;
+        insuranceChk.checked = false;
+      });
+    }
+
+    const markSeenBtn = document.getElementById('markFirstSeenBtn');
+    if(markSeenBtn) markSeenBtn.addEventListener('click', markFirstWaitingAsSeen);
+
+    // Sidebar navigation routing
+    document.querySelectorAll('.sidebar-menu a').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        e.preventDefault();
+        const view = anchor.getAttribute('data-view');
+        if(view === 'dashboard') showView('dashboard');
+        else if(view === 'appointments') showView('appointments');
+        else if(view === 'patients') showView('patients');
+        else if(view === 'journey') showView('journey');
+      });
+    });
+
+    // appointments add button
+    const addApptBtn = document.getElementById('addApptBtn');
+    if(addApptBtn) addApptBtn.addEventListener('click', addAppointmentOffline);
+
+    // default dashboard visible & set active
+    showView('dashboard');
+  });
+</script>
+</body>
+</html>

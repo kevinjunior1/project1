@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="mucyo1.css">
+    <title>Unity Health - Offline Check-in</title>
+</head>
+<body>
+<img src="mucyo.png" width="110" height="80">
+<p>welcome to unityhealth-clinic</p>
+<header>
+<nav>
+  <button><a href="index.html">home</a></button> 
+  <button><a href="other s.html">others</a></button> 
+  <button><a href="log in.html">log in</a></button>
+<button><a href="index.html">sign up</a></button>
+    
+    </nav>
+    </header>
+<p>confirm your details</p>
+    <form id="loginForm">
+      <div class="input-group">
+        <label><i class="far fa-envelope"></i> Email / Username</label>
+        <div class="input-icon">
+          <i class="fas fa-user"></i>
+          <input type="text" id="username" placeholder="doctor@unityclinic.com / nurse@unityclinic.com" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <div class="input-icon">
+          <i class="fas fa-key"></i>
+          <input type="password" id="password" placeholder="Enter your password">
+          <button type="button" id="togglePassword" class="password-toggle">
+            <i class="far fa-eye-slash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-options">
+        <label class="checkbox-label">
+          <input type="checkbox" id="rememberCheckbox"> Remember me
+        </label>
+        <a href="#" id="forgotPasswordLink" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="login-btn">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+    </form>
+
+    <!-- Demo credentials hint (offline demo) -->
+    <div class="demo-hint">
+      <i class="fas fa-info-circle"></i> <strong>Demo Credentials</strong><br>
+      👩‍⚕️ <strong>Doctor:</strong> doctor@unityclinic.com / pass123<br>
+      👩‍⚕️ <strong>Nurse:</strong> nurse@unityclinic.com / pass123
+    </div>
+  </div>
+  <footer>
+    <i class="fas fa-laptop-medical"></i> Secure offline login · role-based access
+  </footer>
+</div>
+
+<script>
+  // DOM elements
+  const doctorTab = document.querySelector('.doctor-tab');
+  const nurseTab = document.querySelector('.nurse-tab');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const loginForm = document.getElementById('loginForm');
+  const errorContainer = document.getElementById('errorContainer');
+  const errorTextSpan = document.getElementById('errorText');
+  const togglePasswordBtn = document.getElementById('togglePassword');
+  const rememberCheckbox = document.getElementById('rememberCheckbox');
+  const forgotLink = document.getElementById('forgotPasswordLink');
+  
+  // Role state
+  let currentRole = 'doctor';   // 'doctor' or 'nurse'
+
+  // ---------- Role Switching UI ----------
+  function setActiveRole(role) {
+    currentRole = role;
+    if (role === 'doctor') {
+      doctorTab.classList.add('active');
+      nurseTab.classList.remove('active');
+      // optional: change placeholder hints for doctor
+      usernameInput.placeholder = "doctor@unityclinic.com";
+    } else {
+      nurseTab.classList.add('active');
+      doctorTab.classList.remove('active');
+      usernameInput.placeholder = "nurse@unityclinic.com";
+    }
+    // Clear any previous error when switching roles
+    hideError();
+    // Not clearing input values automatically (user might switch roles)
+  }
+
+  doctorTab.addEventListener('click', () => setActiveRole('doctor'));
+  nurseTab.addEventListener('click', () => setActiveRole('nurse'));
+
+  // ---------- Helper: Show error message ----------
+  function showError(message) {
+    errorTextSpan.innerText = message;
+    errorContainer.classList.remove('hidden');
+    // auto hide after 4 seconds
+    setTimeout(() => {
+      if (errorContainer && !errorContainer.classList.contains('hidden')) {
+        errorContainer.classList.add('hidden');
+      }
+    }, 4000);
+  }
+
+  function hideError() {
+    errorContainer.classList.add('hidden');
+    errorTextSpan.innerText = '';
+  }
+
+  // ---------- Password Toggle (show/hide) ----------
+  togglePasswordBtn.addEventListener('click', function() {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    this.innerHTML = type === 'password' ? '<i class="far fa-eye-slash"></i>' : '<i class="far fa-eye"></i>';
+  });
+
+  // ---------- Forgot password (demo simulation) ----------
+  forgotLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showToastMessage('📧 Reset link sent to your clinic email address (demo mode).');
+  });
+
+  // Helper toast message (temporary notification)
+  function showToastMessage(message, isSuccess = true) {
+    let existingToast = document.querySelector('.toast-message');
+    if (existingToast) existingToast.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-info-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+  // ---------- Save to localStorage "remember me" (demo) ----------
+  function saveRememberedCredentials(username, role) {
+    if (rememberCheckbox.checked) {
+      localStorage.setItem('clinic_remembered_user', username);
+      localStorage.setItem('clinic_remembered_role', role);
+      localStorage.setItem('clinic_remember_flag', 'true');
+    } else {
+      localStorage.removeItem('clinic_remembered_user');
+      localStorage.removeItem('clinic_remembered_role');
+      localStorage.setItem('clinic_remember_flag', 'false');
+    }
+  }
+
+  function loadRememberedCredentials() {
+    const flag = localStorage.getItem('clinic_remember_flag');
+    if (flag === 'true') {
+      const savedUser = localStorage.getItem('clinic_remembered_user');
+      const savedRole = localStorage.getItem('clinic_remembered_role');
+      if (savedUser) {
+        usernameInput.value = savedUser;
+        rememberCheckbox.checked = true;
+        if (savedRole === 'doctor') setActiveRole('doctor');
+        else if (savedRole === 'nurse') setActiveRole('nurse');
+      }
+    }
+  }
+
+  // ---------- VALIDATION & AUTHENTICATION (mock role-based) ----------
+  // For demo purposes, clinic staff validation: doctor & nurse credentials
+  function authenticate(role, username, password) {
+    // Normalize inputs
+    const user = username.trim().toLowerCase();
+    const pwd = password.trim();
+    
+    if (role === 'doctor') {
+      // doctor credentials: doctor@unityclinic.com / pass123  or any demo
+      if ((user === 'doctor@unityclinic.com' || user === 'doctor') && pwd === 'pass123') {
+        return { success: true, fullName: 'Dr. Sarah Mitchell', role: 'Doctor', redirect: '/doctor-dashboard' };
+      }
+    } 
+    else if (role === 'nurse') {
+      // nurse credentials: nurse@unityclinic.com / pass123
+      if ((user === 'nurse@unityclinic.com' || user === 'nurse') && pwd === 'pass123') {
+        return { success: true, fullName: 'Nurse Anna K.', role: 'Nurse', redirect: '/nurse-dashboard' };
+      }
+    }
+    return { success: false, message: 'Invalid email or password. Please check your credentials.' };
+  }
+
+  // ---------- After successful login: display redirect simulation + role info ----------
+  function handleLoginSuccess(userData, roleType) {
+    // Display a nice success toast with role-based welcome
+    const welcomeMsg = `Welcome back, ${userData.fullName} (${userData.role}). Redirecting to dashboard...`;
+    showToastMessage(welcomeMsg, true);
+    
+    // In a real app, redirect to dashboard page; here we simulate navigation
+    setTimeout(() => {
+      // For demonstration: show an alert with success and reload simulation? 
+      // We can also replace body content slightly, but just illustrate successful login:
+      alert(`✅ LOGIN SUCCESSFUL!\n\nRole: ${userData.role}\nName: ${userData.fullName}\n\nThe clinic dashboard would open here.\n(Offline demo simulation)`);
+      // Optional: reset form or keep logged in state? We'll clear password field to reset.
+      passwordInput.value = '';
+      // On success, you could also redirect to a new page (but this is just code snippet)
+      // For demonstration we just show a success message.
+    }, 500);
+  }
+
+  // ---------- Form submit handler ----------
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    hideError();
+    
+    const username = usernameInput.value;
+    const password = passwordInput.value;
+    
+    // basic empty check
+    if (!username || username.trim() === '') {
+      showError('Please enter your email/username.');
+      return;
+    }
+    if (!password) {
+      showError('Password is required.');
+      return;
+    }
+    
+    // Perform authentication based on currentRole
+    const authResult = authenticate(currentRole, username, password);
+    
+    if (authResult.success) {
+      // Save remember-me if checked
+      saveRememberedCredentials(username, currentRole);
+      // Successful login
+      handleLoginSuccess(authResult, currentRole);
+      // optional clear error & further actions
+    } else {
+      showError(authResult.message || 'Authentication failed. Please try again.');
+      // on failure, clear password only for security
+      passwordInput.value = '';
+    }
+  });
+  
+  // Additional: reset demo fields with one-click? not necessary but add small handler for usability
+  // Also if user press Enter, works as submit.
+  
+  // Load any saved "remember me" data on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRememberedCredentials();
+    // Also set initial placeholder based on active role
+    if (currentRole === 'doctor') {
+      usernameInput.placeholder = "doctor@unityclinic.com";
+    } else {
+      usernameInput.placeholder = "nurse@unityclinic.com";
+    }
+    // Add small demo helper tooltip: if using quick demo.
+  });
+  
+  // Convenience: if user clicks on any demo hint fill? Not needed but prevent confusion, but we also provide helper:
+  // double-click on demo hint to autofill demo credentials?
+  const demoHintDiv = document.querySelector('.demo-hint');
+  if (demoHintDiv) {
+    demoHintDiv.addEventListener('dblclick', () => {
+      if (currentRole === 'doctor') {
+        usernameInput.value = 'doctor@unityclinic.com';
+        passwordInput.value = 'pass123';
+      } else {
+        usernameInput.value = 'nurse@unityclinic.com';
+        passwordInput.value = 'pass123';
+      }
+      showToastMessage('Demo credentials filled! Click Sign In.', true);
+    });
+  }
+  
+  // Also clicking on role tabs should not clear whole form but remove error
+  const roleTabs = [doctorTab, nurseTab];
+  roleTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      hideError();
+      // optional: if we want to preserve username but show role placeholder, fine
+    });
+  });
+</script>
+</body>
+</html>
